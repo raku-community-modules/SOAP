@@ -5,7 +5,7 @@ use XML;
 
 has $.wsdl;
 
-method call($name, *@params) {
+method call($name, *%params) {
     my $namespace = $.wsdl.namespace;
     my $in-message;
     my $out-message;
@@ -32,7 +32,8 @@ method call($name, *@params) {
         if $part<element> {
             my $element = $.wsdl.types<elements>{$part<element>};
             if $element<type> {
-                my $value = @params.shift;
+                #my $value = @params.shift;
+                my $value = %params{$part<element>};
                 @in.push(make-xml($part<element>, :xmlns($namespace), ~$value));
             }
             elsif $element<sequence> {
@@ -41,7 +42,8 @@ method call($name, *@params) {
                     if $seq-part<element> {
                         my $seq-elem = $.wsdl.types<elements>{$seq-part<element>};
                         if $seq-elem<type> {
-                            my $value = @params.shift;
+                            #my $value = @params.shift;
+                            my $value = %params{$seq-part<element>};
                             @seq.push(make-xml($seq-part<element>, ~$value));
                         }
                         elsif $seq-elem<sequence> {
