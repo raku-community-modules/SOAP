@@ -78,5 +78,15 @@ method call($name, *%params) {
     my $rbody = $r-xml.elements(:TAG($soap-prefix~':Body'), :SINGLE);
     
     # Cheat!
-    return $rbody.elements[0][0].contents;
+    #return $rbody.elements[0][0].contents;
+    
+    # still cheat, just a little less blatently
+    my %ret;
+    for $rbody.elements -> $body-elem {
+        for $body-elem.elements -> $leaf {
+            %ret{$leaf.name} = $leaf.contents;
+        }
+    }
+    
+    return %ret;
 }
