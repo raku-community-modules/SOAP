@@ -1,9 +1,30 @@
 class SOAP::Client;
 
+use SOAP::Client::WSDL;
 use LWP::Simple;
 use XML;
 
 has $.wsdl;
+
+method new($from) {
+    my $wsdl;
+    if $from ~~ SOAP::Client::WSDL {
+        $wsdl = $from;
+    }
+    elsif $from ~~ /^\s+\</ {
+        $wsdl = SOAP::Client::WSDL.new;
+        $wsdl.parse($from);
+    }
+    elsif $from ~~ /^https?\:\/\// {
+        $wsdl = SOAP::Client::WSDL.new;
+        $wsdl.parse-url($from);
+    }
+    else {
+        $wsdl = SOAP::Client::WSDL.new;
+        $wsdl.parse-file($from);
+    }
+    self.bless(:$wsdl);
+}
 
 method call($name, *%params) {
     my $namespace = $.wsdl.namespace;

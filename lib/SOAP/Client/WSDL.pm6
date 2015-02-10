@@ -1,5 +1,6 @@
 class SOAP::Client::WSDL;
 
+use LWP::Simple;
 use XML;
 
 has $.namespace;
@@ -9,8 +10,17 @@ has %.porttypes;
 has %.bindings;
 has %.services;
 
-method parse($file) {
-    my $document = from-xml-file($file);
+method parse-file($file) {
+    self.parse(slurp $file);
+}
+
+method parse-url($url) {
+    my $xml = LWP::Simple.get($url);
+    self.parse($xml);
+}
+
+method parse($xml) {
+    my $document = from-xml($xml);
     
     my $wsdl-prefix = $document.nsPrefix('http://schemas.xmlsoap.org/wsdl/').Str // '';
     $wsdl-prefix = $wsdl-prefix ~ ":" if $wsdl-prefix && $wsdl-prefix.chars;
