@@ -1,8 +1,8 @@
-use WSDL;
-use SOAP;
+use SOAP::Client::WSDL;
+use SOAP::Client;
 
-my $w = WSDL.new;
-$w.parse('..\p6-wsdl\converttemperature.xml');
+my $w = SOAP::Client::WSDL.new;
+$w.parse('converttemperature.xml');
 
-my $s = SOAP.new(wsdl => $w);
+my $s = SOAP::Client.new(wsdl => $w);
 say $s.call('ConvertTemp', 32, 'degreeCelsius', 'degreeFahrenheit');

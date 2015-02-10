@@ -1,4 +1,4 @@
-class SOAP;
+class SOAP::Client;
 
 use LWP::Simple;
 use XML;
