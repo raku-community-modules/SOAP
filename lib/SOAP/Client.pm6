@@ -33,7 +33,7 @@ method call($name, *%params) {
     my $location;
     my $soapaction;
     my $type;
-    
+
     # find the porttypes for the operation
     for $.wsdl.services.kv -> $service, $sdata {
         for $sdata<ports>.kv -> $port, $pdata {
@@ -46,61 +46,39 @@ method call($name, *%params) {
             }
         }
     }
-    
+
     # build in-message
-    my @in;
-    for $in-message<parts>.list -> $part {
-        if $part<element> {
-            my $element = $.wsdl.types<elements>{$part<element>};
-            if $element<type> {
-                #my $value = @params.shift;
-                my $value = %params{$part<element>};
-                @in.push(make-xml($part<element>, :xmlns($namespace), ~$value));
-            }
-            elsif $element<sequence> {
-                my @seq;
-                for $element<sequence>.list -> $seq-part {
-                    if $seq-part<element> {
-                        my $seq-elem = $.wsdl.types<elements>{$seq-part<element>};
-                        if $seq-elem<type> {
-                            #my $value = @params.shift;
-                            my $value = %params{$seq-part<element>};
-                            @seq.push(make-xml($seq-part<element>, ~$value));
-                        }
-                        elsif $seq-elem<sequence> {
-                            die "Nested params NYI";
-                        }
-                    }
-                }
-                @in.push(make-xml($part<element>, :xmlns($namespace), |@seq));
-            }
-        }
-    }
-    
+    # to do this properly, we really need XML::Schema
+    # but for now, just assume the passed parameters are ok
+    # and just convert to XML blindly
+    # (Cheating is fun!)
+    my $part = $in-message<parts>[0];
+    my $in = make-xml($part<element>, :xmlns($namespace), p6-to-xml(%params));
+
     # build soap request
-    my $body = make-xml("soap:Body", |@in);
+    my $body = make-xml("soap:Body", $in);
     my $request = make-xml("soap:Envelope",
                             $body);
     $request.setNamespace('http://schemas.xmlsoap.org/soap/envelope/', 'soap');
-    
+
     $request = '<?xml version="1.0" encoding="utf-8"?>' ~ $request;
-    
+
     # send to location
     my %headers = ('Content-Type' => 'text/xml');
     if $type eq 'soap' {
         %headers<SOAPAction> = $soapaction;
     }
     my $response = LWP::Simple.post($location, %headers, $request);
-    
+
     my $r-xml = from-xml($response);
-    
+
     my $soap-prefix = $r-xml.nsPrefix('http://schemas.xmlsoap.org/soap/envelope/');
-    
+
     my $rbody = $r-xml.elements(:TAG($soap-prefix~':Body'), :SINGLE);
-    
+
     # Cheat!
     #return $rbody.elements[0][0].contents;
-    
+
     # still cheat, just a little less blatently
     my %ret;
     for $rbody.elements -> $body-elem {
@@ -108,6 +86,24 @@ method call($name, *%params) {
             %ret{$leaf.name} = $leaf.contents;
         }
     }
-    
+
     return %ret;
+}
+
+sub p6-to-xml($p6) {
+    my @ret;
+    for $p6.kv -> $k, $v {
+        if $v ~~ List {
+            for $v.list -> $vli {
+                @ret.push: p6-to-xml({ $k => $vli }).list;
+            }
+        }
+        elsif $v ~~ Hash {
+            @ret.push(make-xml($k, p6-to-xml($v)));
+        }
+        else {
+            @ret.push(make-xml($k, $v));
+        }
+    }
+    return @ret;
 }
