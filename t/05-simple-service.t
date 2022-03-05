@@ -18,10 +18,3 @@ ok $temp, "Got a SOAP::Client object for ConvertTemperature";
 my $result = $temp.call('CelsiusToFahrenheit', Celsius => 100);
 ok $result, "Got a result for a temperature conversion";
 is $result<CelsiusToFahrenheitResult>, 212, "Got correct result";
-
-#my $stats = SOAP::Client.new('http://www.webservicex.net/Statistics.asmx?WSDL');
-#ok $stats, "Got a SOAP::Client object for Statistics";
-
-#$result = $stats.call('GetStatistics', X => {double => [1, 2, 3]});
-#ok $result, "Got a result for Statistics";
-#is $result<Sums>, 6, "Got correct result";
