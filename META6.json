@@ -1,8 +1,8 @@
 {
     "perl" : "6.*",
     "name" : "SOAP::Client",
-    "version" : "1.0.0",
-    "author" : "github:retupmoca",
+    "version" : "1.0.1",
+    "author" : "zef:raku-community-modules",
     "description" : "Quick and dirty SOAP client",
     "depends" : ["XML", "LWP::Simple"],
     "provides" : {
