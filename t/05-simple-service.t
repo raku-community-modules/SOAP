@@ -1,5 +1,6 @@
 use v6;
 use Test;
+plan 3;
 
 use SOAP::Client;
 
@@ -24,5 +25,3 @@ is $result<CelsiusToFahrenheitResult>, 212, "Got correct result";
 #$result = $stats.call('GetStatistics', X => {double => [1, 2, 3]});
 #ok $result, "Got a result for Statistics";
 #is $result<Sums>, 6, "Got correct result";
-
-done-testing;
