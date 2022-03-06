@@ -1,8 +1,9 @@
 {
-    "perl" : "6.*",
+    "raku" : "6.*",
     "name" : "SOAP::Client",
     "version" : "1.0.1",
-    "author" : "zef:raku-community-modules",
+    "auth" : "zef:raku-community-modules",
+    "authors": ["Andrew Egeler", "Raku Community"],
     "description" : "Quick and dirty SOAP client",
     "depends" : ["XML", "LWP::Simple"],
     "provides" : {
